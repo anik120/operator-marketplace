@@ -4,13 +4,9 @@ import (
 	"fmt"
 
 	marketplace "github.com/operator-framework/operator-marketplace/pkg/apis/operators/v1"
+	"github.com/operator-framework/operator-marketplace/pkg/datastore"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-// DatastoreLabel is the label used in a CatalogSourceConfig to indicate that
-// the resulting CatalogSource acts as the datastore for the OperatorSource
-// if it is set to "true".
-const DatastoreLabel string = "opsrc-datastore"
 
 // OpsrcOwnerNameLabel is the label used to mark ownership over resources
 // that are owned by the OperatorSource. When this label is set, the reconciler
@@ -56,7 +52,7 @@ func (b *CatalogSourceConfigBuilder) WithNamespacedName(namespace, name string) 
 // opsrcLabels.
 func (b *CatalogSourceConfigBuilder) WithLabels(opsrcLabels map[string]string) *CatalogSourceConfigBuilder {
 	labels := map[string]string{
-		DatastoreLabel: "true",
+		datastore.DatastoreLabel: "true",
 	}
 
 	for key, value := range opsrcLabels {
