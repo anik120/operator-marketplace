@@ -18,6 +18,7 @@ type Client interface {
 	Create(ctx context.Context, obj runtime.Object) error
 	Get(ctx context.Context, key ObjectKey, objExisting runtime.Object) error
 	Update(ctx context.Context, obj runtime.Object) error
+	Delete(ctx context.Context, obj runtime.Object, opts ...client.DeleteOptionFunc) error
 }
 
 // kubeClient is an implementation of the Client interface
@@ -46,4 +47,9 @@ func (h *kubeClient) Get(ctx context.Context, key ObjectKey, objExisting runtime
 // Update updates an existing runtime object in the cluster
 func (h *kubeClient) Update(ctx context.Context, obj runtime.Object) error {
 	return h.client.Update(ctx, obj)
+}
+
+// Delete deletes a new runtime object in the cluster
+func (h *kubeClient) Delete(ctx context.Context, obj runtime.Object, opts ...client.DeleteOptionFunc) error {
+	return h.client.Delete(ctx, obj, opts...)
 }
