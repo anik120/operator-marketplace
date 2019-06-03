@@ -175,6 +175,7 @@ func CreateOperatorSourceDefinition(namespace string) *marketplace.OperatorSourc
 		},
 	}
 }
+
 // CheckCscChildResourcesCreated checks that a CatalogSourceConfig's
 // child resources were deployed.
 func CheckCscChildResourcesCreated(client test.FrameworkClient, cscName string, namespace string, targetNamespace string) error {
@@ -268,5 +269,63 @@ func CheckCscSuccessfulDeletion(client test.FrameworkClient, cscName string, nam
 		return err
 	}
 
+	return nil
+}
+
+// CheckOpsrcChildResourcesCreated checks that a OperatorSource's
+// child resources were deployed.
+func CheckOpsrcChildResourcesCreated(client test.FrameworkClient, opsrcName string, namespace string) error {
+	// Check that the CatalogSource was created.
+	resultCatalogSource := &olm.CatalogSource{}
+	err := WaitForResult(client, resultCatalogSource, namespace, opsrcName)
+	if err != nil {
+		return err
+	}
+
+	// Check that the Service was created.
+	resultService := &corev1.Service{}
+	err = WaitForResult(client, resultService, namespace, opsrcName)
+	if err != nil {
+		return err
+	}
+
+	// Check that the Deployment was created.
+	resultDeployment := &apps.Deployment{}
+	err = WaitForResult(client, resultDeployment, namespace, opsrcName)
+	if err != nil {
+		return err
+	}
+
+	// Now check that the Deployment is ready.
+	err = WaitForSuccessfulDeployment(client, *resultDeployment)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// CheckOpsrcChildResourcesDeleted checks that an OperatorSource's
+// child resources were deleted.
+func CheckOpsrcChildResourcesDeleted(client test.FrameworkClient, opsrcName string, namespace string) error {
+	// Check that the CatalogSource was deleted.
+	resultCatalogSource := &olm.CatalogSource{}
+	err := WaitForNotFound(client, resultCatalogSource, namespace, opsrcName)
+	if err != nil {
+		return err
+	}
+
+	// Check that the Service was deleted.
+	resultService := &corev1.Service{}
+	err = WaitForNotFound(client, resultService, namespace, opsrcName)
+	if err != nil {
+		return err
+	}
+
+	// Check that the Deployment was deleted.
+	resultDeployment := &apps.Deployment{}
+	err = WaitForNotFound(client, resultDeployment, namespace, opsrcName)
+	if err != nil {
+		return err
+	}
 	return nil
 }
